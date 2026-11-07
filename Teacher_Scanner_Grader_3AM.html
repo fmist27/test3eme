@@ -669,8 +669,6 @@
           <option value="ALL">جميع الأقسام (الكل)</option>
           <option value="3م1">3م1</option>
           <option value="3م2">3م2</option>
-          <option value="3م3">3م3</option>
-          <option value="3م4">3م4</option>
         </select>
 
         <input type="text" id="searchStudentInput" class="search-input" placeholder="🔍 بحث باللقب أو الاسم...">
@@ -1345,6 +1343,37 @@
     }
   };
 
+  // قاعدة بيانات الأشكال الهندسية الثلاثة المتغيرة للسؤال الإضافي (مثلث، مربع، سداسي)
+  const EXTRA_SHAPE_DB = {
+    0: {
+      qIdx: 4,
+      text: "سؤال إضافي: ما هو الشكل الهندسي الذي يرسمه المقطع البرمجي: [عند النقر على العلم ← أنزل القلم ← كرر (03) مرات: (تحرك 100 خطوة، استدر 120 درجة)]؟",
+      correct: 2,
+      points: 1,
+      isRank: false,
+      modelAnswer: "مثلث (لأنه يكرر 03 مرات: تحرك 100 واستدر 120 درجة)",
+      options: ["مربع", "سداسي", "مثلث"]
+    },
+    1: {
+      qIdx: 4,
+      text: "سؤال إضافي: ما هو الشكل الهندسي الذي يرسمه المقطع البرمجي: [عند النقر على العلم ← أنزل القلم ← كرر (04) مرات: (تحرك 100 خطوة، استدر 90 درجة)]؟",
+      correct: 1,
+      points: 1,
+      isRank: false,
+      modelAnswer: "مربع (لأنه يكرر 04 مرات: تحرك 100 واستدر 90 درجة)",
+      options: ["سداسي", "مربع", "مثلث"]
+    },
+    2: {
+      qIdx: 4,
+      text: "سؤال إضافي: ما هو الشكل الهندسي الذي يرسمه المقطع البرمجي: [عند النقر على العلم ← أنزل القلم ← كرر (06) مرات: (تحرك 100 خطوة، استدر 60 درجة)]؟",
+      correct: 0,
+      points: 1,
+      isRank: false,
+      modelAnswer: "سداسي (لأنه يكرر 06 مرات: تحرك 100 واستدر 60 درجة)",
+      options: ["سداسي", "مثلث", "مربع"]
+    }
+  };
+
   /* =========================================================================
      2. فك التشفير والتصحيح الآلي وإدارة السجلات الدائمة في localStorage
      ========================================================================= */
@@ -1441,6 +1470,7 @@
   function evaluateStudentPayload(payload) {
     const exIds = payload.exIds || payload.e;
     const ansMatrix = payload.ans || payload.a;
+    const sv = payload.sv;
     if (!Array.isArray(exIds) || !Array.isArray(ansMatrix) || exIds.length !== 4) {
       throw new Error("بنية التمارين في الكود غير صالحة");
     }
@@ -1455,7 +1485,12 @@
       let exScore = 0;
       const gradedItems = [];
 
-      exDef.items.forEach(function(itemDef, qIdx) {
+      exDef.items.forEach(function(origItemDef, qIdx) {
+        // إذا كان التمرين 9 أو 10 والفرع هو السؤال الإضافي (qIdx === 4)، نستخدم الشكل الهندسي الذي سُحب للتلميذ (sv)
+        const itemDef = (exDef.type === "order_plus_qcm" && qIdx === 4 && sv !== undefined && EXTRA_SHAPE_DB[sv])
+          ? EXTRA_SHAPE_DB[sv]
+          : origItemDef;
+
         const sVal = studentExAns[qIdx] !== undefined ? studentExAns[qIdx] : -1;
         const isCorrect = sVal === itemDef.correct;
         const earned = isCorrect ? itemDef.points : 0;
@@ -1517,12 +1552,13 @@
     const timeSpent = stData.t !== undefined ? stData.t : (stData.timeSpent || 0);
     const exIds = stData.exIds || stData.e;
     const ans = stData.ans || stData.a;
+    const sv = stData.sv;
 
     if (!fullName || !cls || !Array.isArray(exIds)) {
       throw new Error("بيانات التلميذ غير مكتملة");
     }
 
-    const evaluation = evaluateStudentPayload({ exIds: exIds, ans: ans });
+    const evaluation = evaluateStudentPayload({ exIds: exIds, ans: ans, sv: sv });
     const nowStr = new Date().toLocaleString("ar-DZ");
 
     const existingIdx = studentRecords.findIndex(function(r) {
@@ -1536,6 +1572,7 @@
       name: fullName,
       cls: cls,
       exIds: exIds,
+      sv: sv,
       ans: ans,
       timeSpent: timeSpent,
       score: evaluation.totalScore,
@@ -1764,6 +1801,7 @@
         c: r.cls,
         t: r.timeSpent,
         exIds: r.exIds,
+        sv: r.sv,
         ans: r.ans,
         scannedAt: r.scannedAt,
         score: r.score,
