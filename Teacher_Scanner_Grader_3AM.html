@@ -1,0 +1,2241 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>منصة الأستاذ للفرز والتصحيح الآلي وحفظ القوائم - السنة الثالثة متوسط (3AM)</title>
+<!-- مكتبة مسح كود QR عبر كاميرا الهاتف أو الحاسوب -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+    background-color: #f1f5f9;
+    color: #0f172a;
+    line-height: 1.6;
+    direction: rtl;
+    text-align: right;
+    padding-bottom: 60px;
+  }
+  input, select, button, textarea {
+    font-family: inherit;
+  }
+
+  /* الهيدر العلوي */
+  .app-header {
+    background: linear-gradient(135deg, #0f172a, #1e3a8a);
+    color: #ffffff;
+    padding: 18px 24px;
+    border-bottom: 4px solid #3b82f6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .app-header h1 {
+    font-size: 20px;
+  }
+  .app-header p {
+    font-size: 13px;
+    color: #cbd5e1;
+  }
+  .header-stats {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .stat-pill {
+    background-color: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  .stat-pill span {
+    color: #38bdf8;
+    font-size: 16px;
+  }
+
+  .container {
+    max-width: 1240px;
+    margin: 22px auto;
+    padding: 0 16px;
+  }
+
+  /* شبكة التحكم العلوية */
+  .top-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 20px;
+    margin-bottom: 22px;
+  }
+
+  .card {
+    background-color: #ffffff;
+    border: 2px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    margin-bottom: 22px;
+  }
+  .card-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #1e3a8a;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 10px;
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* منطقة الكاميرا */
+  #qrReader {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto 12px auto;
+    border: 2px dashed #64748b;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #f8fafc;
+    min-height: 80px;
+  }
+  .scanner-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+
+  /* الأزرار */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .btn-primary {
+    background-color: #2563eb;
+    color: #ffffff;
+  }
+  .btn-primary:hover {
+    background-color: #1d4ed8;
+  }
+  .btn-success {
+    background-color: #16a34a;
+    color: #ffffff;
+  }
+  .btn-success:hover {
+    background-color: #15803d;
+  }
+  .btn-teal {
+    background-color: #0f766e;
+    color: #ffffff;
+  }
+  .btn-teal:hover {
+    background-color: #115e59;
+  }
+  .btn-purple {
+    background-color: #6d28d9;
+    color: #ffffff;
+  }
+  .btn-purple:hover {
+    background-color: #5b21b6;
+  }
+  .btn-danger {
+    background-color: #dc2626;
+    color: #ffffff;
+  }
+  .btn-danger:hover {
+    background-color: #b91c1c;
+  }
+  .btn-secondary {
+    background-color: #475569;
+    color: #ffffff;
+  }
+  .btn-secondary:hover {
+    background-color: #334155;
+  }
+  .btn-outline {
+    background-color: #f8fafc;
+    color: #1e293b;
+    border: 2px solid #94a3b8;
+  }
+  .btn-outline:hover {
+    background-color: #e2e8f0;
+  }
+  .btn-sm {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+
+  /* إدخال ملفات .dat أو الكود اليدوي */
+  .import-group {
+    margin-bottom: 14px;
+  }
+  .import-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 6px;
+    color: #334155;
+  }
+  .file-input {
+    width: 100%;
+    padding: 8px;
+    border: 2px dashed #3b82f6;
+    border-radius: 6px;
+    background-color: #eff6ff;
+    cursor: pointer;
+  }
+  .manual-textarea {
+    width: 100%;
+    height: 70px;
+    padding: 10px;
+    font-size: 13px;
+    border: 2px solid #cbd5e1;
+    border-radius: 6px;
+    resize: vertical;
+    direction: ltr;
+    text-align: left;
+  }
+
+  /* تنبيه المسح الفوري */
+  .scan-toast {
+    display: none;
+    background-color: #dcfce7;
+    border: 2px solid #16a34a;
+    color: #14532d;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 18px;
+    font-weight: bold;
+    font-size: 15px;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .scan-toast.error {
+    background-color: #fef2f2;
+    border-color: #dc2626;
+    color: #991b1b;
+  }
+
+  /* صندوق الحفظ الدائم والإرسال إلى إيميل الأستاذ */
+  .backup-email-panel {
+    background-color: #f0fdf4;
+    border: 2px solid #86efac;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 18px;
+  }
+  .backup-email-header {
+    font-size: 16px;
+    font-weight: bold;
+    color: #14532d;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .auto-save-badge {
+    background-color: #dcfce7;
+    color: #15803d;
+    border: 1px solid #16a34a;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+  }
+  .teacher-email-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .teacher-email-input {
+    flex: 1;
+    min-width: 240px;
+    padding: 9px 12px;
+    font-size: 15px;
+    border: 2px solid #16a34a;
+    border-radius: 6px;
+    background-color: #ffffff;
+    direction: ltr;
+    text-align: left;
+  }
+  .backup-buttons-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  /* شريط الفلترة والأدوات */
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+    background-color: #f8fafc;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+  }
+  .toolbar-filters {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .filter-select, .search-input {
+    padding: 8px 12px;
+    font-size: 15px;
+    border: 2px solid #94a3b8;
+    border-radius: 6px;
+    background-color: #ffffff;
+    font-weight: bold;
+  }
+
+  /* جدول التلاميذ */
+  .table-responsive {
+    width: 100%;
+    overflow-x: auto;
+  }
+  table.students-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+  }
+  table.students-table th,
+  table.students-table td {
+    border: 1px solid #cbd5e1;
+    padding: 10px 12px;
+    text-align: right;
+  }
+  table.students-table th {
+    background-color: #1e3a8a;
+    color: #ffffff;
+    font-weight: bold;
+    white-space: nowrap;
+  }
+  table.students-table tr:nth-child(even) {
+    background-color: #f8fafc;
+  }
+  table.students-table tr:hover {
+    background-color: #eff6ff;
+  }
+  .score-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 16px;
+    min-width: 70px;
+    text-align: center;
+  }
+  .score-pass {
+    background-color: #dcfce7;
+    color: #15803d;
+    border: 1px solid #16a34a;
+  }
+  .score-fail {
+    background-color: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #dc2626;
+  }
+  .ex-pill {
+    display: inline-block;
+    background-color: #e0e7ff;
+    color: #1e40af;
+    border: 1px solid #93c5fd;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: bold;
+    margin-left: 4px;
+  }
+
+  /* عارض وثيقة ولي الأمر ونوافذ الإيميل */
+  .report-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(15, 23, 42, 0.8);
+    z-index: 999;
+    overflow-y: auto;
+    padding: 20px 12px;
+  }
+  .report-container {
+    background-color: #ffffff;
+    max-width: 900px;
+    margin: 0 auto;
+    border-radius: 8px;
+    padding: 28px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+  }
+  .report-actions-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    background-color: #f1f5f9;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    border: 1px solid #cbd5e1;
+  }
+
+  /* نافذة إرسال إيميل للتلميذ */
+  .email-modal-box {
+    background-color: #ffffff;
+    max-width: 620px;
+    margin: 40px auto;
+    border-radius: 10px;
+    padding: 24px;
+    border: 3px solid #1e3a8a;
+  }
+  .email-preview-area {
+    width: 100%;
+    height: 220px;
+    padding: 12px;
+    border: 2px solid #cbd5e1;
+    border-radius: 6px;
+    background-color: #f8fafc;
+    font-size: 14px;
+    margin-top: 8px;
+    margin-bottom: 14px;
+    resize: vertical;
+  }
+
+  /* تنسيق ورقة التلميذ الرسمية لولي الأمر */
+  .official-sheet {
+    border: 2px solid #0f172a;
+    padding: 20px;
+    border-radius: 4px;
+    background-color: #ffffff;
+  }
+  .sheet-header {
+    text-align: center;
+    border-bottom: 2px double #0f172a;
+    padding-bottom: 10px;
+    margin-bottom: 14px;
+  }
+  .sheet-header h2 {
+    font-size: 19px;
+    color: #0f172a;
+    margin: 4px 0;
+  }
+  .sheet-header p {
+    font-size: 14px;
+    font-weight: bold;
+    color: #334155;
+  }
+  .sheet-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    background-color: #f8fafc;
+    border: 1px solid #94a3b8;
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    font-size: 14px;
+  }
+  .sheet-score-box {
+    background-color: #eff6ff;
+    border: 2px solid #1e3a8a;
+    padding: 10px 16px;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: #1e3a8a;
+    margin-bottom: 16px;
+  }
+  .sheet-ex-block {
+    margin-bottom: 16px;
+    page-break-inside: avoid;
+  }
+  .sheet-ex-title {
+    background-color: #e2e8f0;
+    color: #0f172a;
+    padding: 7px 12px;
+    font-weight: bold;
+    font-size: 15px;
+    border: 1px solid #94a3b8;
+    border-bottom: none;
+    display: flex;
+    justify-content: space-between;
+  }
+  table.sheet-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  table.sheet-table th,
+  table.sheet-table td {
+    border: 1px solid #94a3b8;
+    padding: 7px 10px;
+    text-align: right;
+    vertical-align: middle;
+  }
+  table.sheet-table th {
+    background-color: #f1f5f9;
+    color: #0f172a;
+    font-weight: bold;
+  }
+  .ans-correct {
+    background-color: #dcfce7 !important;
+    color: #14532d !important;
+    font-weight: bold;
+  }
+  .ans-wrong {
+    background-color: #fee2e2 !important;
+    color: #991b1b !important;
+    font-weight: bold;
+  }
+  .sheet-footer-sign {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 18px;
+    padding-top: 12px;
+    border-top: 1px dashed #64748b;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  .sign-box {
+    width: 45%;
+    min-height: 65px;
+    border: 1px solid #94a3b8;
+    padding: 8px 12px;
+    border-radius: 4px;
+  }
+
+  /* إعدادات الطباعة الرسمية */
+  @media print {
+    body {
+      background-color: #ffffff;
+      padding: 0;
+    }
+    .no-print {
+      display: none !important;
+    }
+    .report-modal {
+      position: static !important;
+      display: block !important;
+      background: none !important;
+      padding: 0 !important;
+      overflow: visible !important;
+    }
+    .report-container {
+      box-shadow: none !important;
+      max-width: 100% !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    .official-sheet {
+      border: 2px solid #000000;
+      page-break-after: always;
+    }
+    .ans-correct {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .ans-wrong {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- الهيدر العلوي -->
+<header class="app-header no-print">
+  <div>
+    <h1>📋 منصة الأستاذ الماسحة والمصححة الفورية — السنة الثالثة متوسط (3AM)</h1>
+    <p>تصحيح آلي لتمارين سكراتش (Scratch) | حفظ دائم لقائمة التلاميذ | إرسال النقاط والإجابات بالإيميل لكل تلميذ ولإيميل الأستاذ الخاص</p>
+  </div>
+  <div class="header-stats">
+    <div class="stat-pill">عدد التلاميذ: <span id="statTotal">0</span></div>
+    <div class="stat-pill">معدل النقاط: <span id="statAvg">0.00</span> / 20</div>
+    <div class="stat-pill">أعلى علامة: <span id="statMax">0</span> / 20</div>
+    <div class="stat-pill">نسبة المعدل (≥10): <span id="statPassRate">0%</span></div>
+  </div>
+</header>
+
+<div class="container no-print">
+
+  <!-- إشعار المسح -->
+  <div id="scanToast" class="scan-toast"></div>
+
+  <div class="top-grid">
+    <!-- البطاقة 1: ماسح الكاميرا -->
+    <div class="card" style="margin-bottom: 0;">
+      <div class="card-title">
+        <span>📷 مسح كود QR عبر كاميرا الهاتف</span>
+        <span id="cameraStatusBadge" style="font-size: 13px; color: #64748b;">الكاميرا متوقفة</span>
+      </div>
+      <div id="qrReader"></div>
+      <div class="scanner-controls">
+        <button id="startScanBtn" class="btn btn-primary" style="flex: 1;">▶️ تشغيل الكاميرا للمسح</button>
+        <button id="stopScanBtn" class="btn btn-danger" style="flex: 1; display: none;">⏹️ إيقاف الكاميرا</button>
+      </div>
+      <p style="font-size: 13px; color: #475569;">يدعم مسح كود التلميذ الفردي أو <strong>الكود الشامل لكل التلاميذ الذين أجابوا في نفس الحاسوب</strong> دفعة واحدة.</p>
+    </div>
+
+    <!-- البطاقة 2: رفع ملفات .dat أو اللصق اليدوي -->
+    <div class="card" style="margin-bottom: 0;">
+      <div class="card-title">
+        <span>📂 استيراد ملفات (.dat / .json) أو لصق الكود</span>
+      </div>
+
+      <div class="import-group">
+        <label for="datFileInput">1. رفع ملف إجابة التلميذ أو ملف الحاسوب الشامل أو ملف قائمة محفوظة (.dat / .json):</label>
+        <input type="file" id="datFileInput" class="file-input" accept=".dat,.json,.txt" multiple>
+      </div>
+
+      <div class="import-group">
+        <label for="manualCodeInput">2. أو الصق كود الإجابة أو كود الاسترجاع الشامل (Base64) هنا:</label>
+        <textarea id="manualCodeInput" class="manual-textarea" placeholder="الصق الكود المشفر هنا لاسترجاع تلميذ أو قائمة تلاميذ كاملة..."></textarea>
+        <button id="gradeManualBtn" class="btn btn-success" style="width: 100%; margin-top: 8px;">✔️ تصحيح / استرجاع البيانات وإضافتها للجدول</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- قائمة التلاميذ، الحفظ الاحتياطي، والإرسال بالإيميل -->
+  <div class="card">
+    <div class="card-title">
+      <span>📊 جدول قائمة التلاميذ الممسوحة أوراقهم (محفوظ تلقائياً في الهاتف)</span>
+      <button id="clearAllRecordsBtn" class="btn btn-danger btn-sm">🗑️ مسح جميع السجلات</button>
+    </div>
+
+    <!-- لوحة ضمان عدم ضياع الإجابات: حفظ القائمة + إرسال كل المعلومات لإيميل الأستاذ الخاص -->
+    <div class="backup-email-panel">
+      <div class="backup-email-header">
+        <span>🛡️ حفظ القائمة وإرسال كل المعلومات معاً إلى إيميلك الخاص (لضمان عدم الضياع والرجوع إليها في أي وقت)</span>
+        <span id="autoSaveStatusBadge" class="auto-save-badge">✅ القائمة محفوظة تلقائياً في ذاكرة الجهاز</span>
+      </div>
+
+      <div class="teacher-email-row">
+        <label for="teacherEmailInput" style="font-weight: bold; font-size: 14px; color: #14532d;">📧 إيميل الأستاذ الخاص:</label>
+        <input type="email" id="teacherEmailInput" class="teacher-email-input" placeholder="teacher@example.com (أدخل بريدك الإلكتروني لحفظه تلقائياً)">
+        <button id="sendAllToTeacherEmailBtn" class="btn btn-purple">
+          📨 إرسال جميع معلومات التلاميذ وإجاباتهم إلى إيميلي الخاص
+        </button>
+      </div>
+
+      <div class="backup-buttons-row">
+        <button id="saveBackupFileBtn" class="btn btn-teal">
+          💾 حفظ قائمة التلاميذ والإجابات في ملف على الهاتف (.json)
+        </button>
+        <button id="restoreBackupFileBtn" class="btn btn-primary">
+          📂 استرجاع قائمة تلاميذ محفوظة من ملف
+        </button>
+        <input type="file" id="hiddenRestoreInput" accept=".json,.dat,.txt" style="display: none;">
+        <button id="copyAllBackupTextBtn" class="btn btn-secondary">
+          📋 نسخ التقرير الشامل + كود الاسترجاع الكامل
+        </button>
+        <button id="shareAllMobileBtn" class="btn btn-outline">
+          📱 مشاركة النسخة الكاملة عبر تطبيقات الهاتف (Gmail / Drive)
+        </button>
+      </div>
+    </div>
+
+    <!-- شريط الفلترة والتصدير -->
+    <div class="toolbar">
+      <div class="toolbar-filters">
+        <label for="filterClassSelect" style="font-weight: bold;">تصفية حسب القسم:</label>
+        <select id="filterClassSelect" class="filter-select">
+          <option value="ALL">جميع الأقسام (الكل)</option>
+          <option value="3م1">3م1</option>
+          <option value="3م2">3م2</option>
+          <option value="3م3">3م3</option>
+          <option value="3م4">3م4</option>
+        </select>
+
+        <input type="text" id="searchStudentInput" class="search-input" placeholder="🔍 بحث باللقب أو الاسم...">
+      </div>
+
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button id="exportCsvBtn" class="btn btn-success">📥 تصدير النقاط إلى Excel (CSV)</button>
+        <button id="printAllFilteredBtn" class="btn btn-secondary">🖨️ طباعة أوراق القسم المعروض</button>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="students-table">
+        <thead>
+          <tr>
+            <th style="width: 45px;">#</th>
+            <th>اللقب</th>
+            <th>الاسم</th>
+            <th>القسم</th>
+            <th>التمارين المسحوبة</th>
+            <th>الوقت المستغرق</th>
+            <th>النقطة النهائية</th>
+            <th style="width: 330px;">الإجراءات (الورقة الرسمية / إرسال إيميل)</th>
+          </tr>
+        </thead>
+        <tbody id="studentsTableBody">
+          <tr>
+            <td colspan="8" style="text-align: center; padding: 24px; color: #64748b; font-weight: bold;">
+              لا توجد أوراق ممسوحة حتى الآن. قم بمسح كود QR من شاشة التلميذ أو ارفع ملف (.dat).
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- نافذة عرض/طباعة ورقة التلميذ لولي الأمر -->
+<div id="reportModal" class="report-modal">
+  <div class="report-container">
+    <div class="report-actions-bar no-print">
+      <div style="font-weight: bold; color: #1e3a8a; font-size: 16px;">📄 معاينة الوثيقة الرسمية لولي الأمر (جاهزة للطباعة أو الحفظ كـ PDF)</div>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button id="printSheetBtn" class="btn btn-primary">🖨️ طباعة / حفظ كملف PDF</button>
+        <button id="closeReportBtn" class="btn btn-secondary">✖️ إغلاق المعاينة</button>
+      </div>
+    </div>
+    <div id="reportSheetsHolder"></div>
+  </div>
+</div>
+
+<!-- نافذة إرسال النتيجة والتصحيح بالإيميل لتلميذ محدد -->
+<div id="studentEmailModal" class="report-modal no-print">
+  <div class="email-modal-box">
+    <h3 id="studentEmailModalTitle" style="color: #1e3a8a; margin-bottom: 10px;">✉️ إرسال ورقة الإجابة والنقطة بالإيميل للتلميذ</h3>
+    <div style="margin-bottom: 10px;">
+      <label for="recipientStudentEmailInput" style="display: block; font-weight: bold; font-size: 14px; margin-bottom: 4px;">
+        البريد الإلكتروني للتلميذ أو ولي الأمر (اختياري - يمكنك تركه فارغاً أو كتابته):
+      </label>
+      <input type="email" id="recipientStudentEmailInput" class="teacher-email-input" style="width: 100%; border-color: #2563eb;" placeholder="student_parent@example.com">
+    </div>
+
+    <label style="font-weight: bold; font-size: 14px;">محتوى الرسالة المفصل (النقطة + التمارين الأربعة + التصحيح النموذجي):</label>
+    <textarea id="studentEmailBodyTextarea" class="email-preview-area" readonly></textarea>
+
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <button id="launchStudentMailtoBtn" class="btn btn-primary" style="flex: 1;">📨 فتح تطبيق الإيميل للإرسال</button>
+      <button id="copyStudentEmailTextBtn" class="btn btn-teal" style="flex: 1;">📋 نسخ نص الرسالة</button>
+      <button id="closeStudentEmailModalBtn" class="btn btn-secondary">✖️ إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  "use strict";
+
+  /* =========================================================================
+     1. قاعدة البيانات الكاملة للتمارين العشرة والتصحيح النموذجي وسلم التنقيط
+     ========================================================================= */
+  const FULL_EXERCISE_DB = {
+    1: {
+      id: 1,
+      cat: 1,
+      type: "tf",
+      title: "التمرين رقم 01: صح أم خطأ (الرسم بالقلم والأصوات في سكراتش)",
+      maxPoints: 5,
+      items: [
+        {
+          qIdx: 0,
+          text: "خاصية الرسم بالقلم تمكننا من برمجة الكائن ليرسم شكلاً ما (خط، شكل هندسي...) أثناء حركته.",
+          correct: 0,
+          points: 1,
+          modelAnswer: "صح",
+          options: ["صح", "خطأ"]
+        },
+        {
+          qIdx: 1,
+          text: "اللبنة «ارفع القلم» تسمح بوضع القلم لكي يبدأ الكائن بالرسم على المنصة.",
+          correct: 1,
+          points: 1,
+          modelAnswer: "خطأ (لبنة «ارفع القلم» تجعل الكائن يتوقف عن الرسم، بينما «أنزل القلم» هي التي تبدأ الرسم)",
+          options: ["صح", "خطأ"]
+        },
+        {
+          qIdx: 2,
+          text: "يوفر برنامج سكراتش إمكانية إضافة الأصوات سواء برفقة أحد الكائنات أو مع المنصة.",
+          correct: 0,
+          points: 1,
+          modelAnswer: "صح",
+          options: ["صح", "خطأ"]
+        },
+        {
+          qIdx: 3,
+          text: "اللبنة «اطبع» الموجودة ضمن أداة القلم تسمح بمسح كل ما تم رسمه سابقاً على المنصة.",
+          correct: 1,
+          points: 1,
+          modelAnswer: "خطأ (لبنة «اطبع» تسمح بنسخ صورة للكائن، بينما لبنة «امسح» هي التي تمسح ما رُسم سابقاً)",
+          options: ["صح", "خطأ"]
+        },
+        {
+          qIdx: 4,
+          text: "تنقسم لبنات الصوت في سكراتش إلى ثلاثة أنواع: لبنات التشغيل والإيقاف، لبنات شدة الصوت، ولبنات سرعة الأداء.",
+          correct: 0,
+          points: 1,
+          modelAnswer: "صح",
+          options: ["صح", "خطأ"]
+        }
+      ]
+    },
+    2: {
+      id: 2,
+      cat: 1,
+      type: "tf",
+      title: "التمرين رقم 02: صح أم خطأ (خاصية التحسس وأداة القلم)",
+      maxPoints: 5,
+      items: [
+        {
+          qIdx: 0,
+          text: "خاصية التحسس تمكننا من برمجة الكائن لينفذ تعليمات معينة إذا وفقط إذا تحقق الشرط المرفق مع لبنة التحسس.",
+          correct: 0,
+          points: 1,
+          modelAnswer: "صح",
+          options: ["صح", "خطأ"]
+        },
+        {
+          qIdx: 1,
+          text: "اللبنات التابعة لأداة «القلم» في برنامج سكراتش تتميز باللون الأزرق الفاتح.",
+          correct: 1,
+          points: 1,
+          modelAnswer: "خطأ (لبنات القلم تتميز باللون الأخضر، بينما لبنات التحسس باللون الأزرق الفاتح)",
+          options: ["صح", "خطأ"]
+        },
+        {
+          qIdx: 2,
+          text: "لبنة «المؤقت» في التحسس تسمح بإظهار أداة حساب التوقيت (عدد الثواني التي مرت منذ فتح المشروع) وتصفيرها عند الحاجة.",
+          correct: 0,
+          points: 1,
+          modelAnswer: "صح",
+          options: ["صح", "خطأ"]
+        },
+        {
+          qIdx: 3,
+          text: "من فوائد استعمال أداة القلم في سكراتش: رسم مسار لحركة كائن، رسم أشكال هندسية، التلوين، والمسح.",
+          correct: 0,
+          points: 1,
+          modelAnswer: "صح",
+          options: ["صح", "خطأ"]
+        },
+        {
+          qIdx: 4,
+          text: "لا يمكن في برنامج سكراتش ربط اللبنات البرمجية بمؤشر الفأرة أو الضغط على أحد أزرار لوحة المفاتيح.",
+          correct: 1,
+          points: 1,
+          modelAnswer: "خطأ (تسمح خاصية التحسس بربط اللبنات بمؤشر الفأرة أو أزرار لوحة المفاتيح)",
+          options: ["صح", "خطأ"]
+        }
+      ]
+    },
+    3: {
+      id: 3,
+      cat: 1,
+      type: "tf",
+      title: "التمرين رقم 03: صح أم خطأ (الصوت، التحسس، والمظاهر والحركة)",
+      maxPoints: 5,
+      items: [
+        {
+          qIdx: 0,
+          text: "للتحكم في الأصوات المرفقة برمجياً نستعين باللبنات المتواجدة ضمن الأداة «الصوت» (ذات اللون البنفسجي/الوردي) من منطقة ألواح اللبنات.",
+          correct: 0,
+          points: 1,
+          modelAnswer: "صح",
+          options: ["صح", "خطأ"]
+        },
+        {
+          qIdx: 1,
+          text: "الهدف من تغيير مظهر «الكائن» هو الإيحاء بأن حركة الكائن طبيعية كما في الأفلام الكرتونية.",
+          correct: 0,
+          points: 1,
+          modelAnswer: "صح",
+          options: ["صح", "خطأ"]
+        },
+        {
+          qIdx: 2,
+          text: "اللبنة «اسأل [ما اسمك؟] وانتظر» تصنف ضمن لبنات «القلم».",
+          correct: 1,
+          points: 1,
+          modelAnswer: "خطأ (تصنف ضمن لبنات «التحسس» - قسم السؤال والجواب)",
+          options: ["صح", "خطأ"]
+        },
+        {
+          qIdx: 3,
+          text: "عند إضافة تسجيل صوتي جديد في سكراتش، ننقر على الزر الأحمر داخل علبة حوار مسجل الصوت لبداية التسجيل.",
+          correct: 0,
+          points: 1,
+          modelAnswer: "صح",
+          options: ["صح", "خطأ"]
+        },
+        {
+          qIdx: 4,
+          text: "لبنات «الارتداد» في قسم الحركة تقوم بتغيير حجم الكائن وإخفائه عند ملامسته لحافة المنصة.",
+          correct: 1,
+          points: 1,
+          modelAnswer: "خطأ (لبنات الارتداد تغير اتجاه الكائن إلى الجهة المعاكسة عند ملامسته لحافة المنصة)",
+          options: ["صح", "خطأ"]
+        }
+      ]
+    },
+    4: {
+      id: 4,
+      cat: 2,
+      type: "qcm",
+      title: "التمرين رقم 04: اختيار من متعدد (لبنات القلم والأصوات)",
+      maxPoints: 5,
+      items: [
+        {
+          qIdx: 0,
+          text: "أي لبنة من لبنات القلم تسمح بمسح كل ما تم رسمه سابقاً على المنصة؟",
+          correct: 0,
+          points: 1,
+          modelAnswer: "لبنة «امسح»",
+          options: [
+            "لبنة «امسح»",
+            "لبنة «اطبع»",
+            "لبنة «ارفع القلم»"
+          ]
+        },
+        {
+          qIdx: 1,
+          text: "ما هي الوظيفة الصحيحة للبنة «اطبع» الموجودة ضمن أداة القلم؟",
+          correct: 1,
+          points: 1,
+          modelAnswer: "نسخ صورة للكائن على المنصة",
+          options: [
+            "طباعة المشروع على الورق بواسطة الطابعة",
+            "نسخ صورة للكائن على المنصة",
+            "تغيير لون القلم وحجمه"
+          ]
+        },
+        {
+          qIdx: 2,
+          text: "لإضافة ملف صوتي محفوظ في الحاسوب إلى المشروع، ننقر على التبويب «الأصوات» من منطقة التحكم ثم نختار الزر:",
+          correct: 1,
+          points: 1,
+          modelAnswer: "استيراد",
+          options: [
+            "تسجيل",
+            "استيراد",
+            "امسح"
+          ]
+        },
+        {
+          qIdx: 3,
+          text: "اللبنة «غيّر شدة الصوت بمقدار (-10)» تنتمي إلى أي نوع من لبنات الصوت؟",
+          correct: 1,
+          points: 1,
+          modelAnswer: "لبنات شدة الصوت",
+          options: [
+            "لبنات التشغيل والإيقاف",
+            "لبنات شدة الصوت",
+            "لبنات سرعة الأداء"
+          ]
+        },
+        {
+          qIdx: 4,
+          text: "لكي يبدأ الكائن برسم خط أثناء حركته على المنصة، يجب أن نستخدم أولاً اللبنة:",
+          correct: 0,
+          points: 1,
+          modelAnswer: "أنزل القلم",
+          options: [
+            "أنزل القلم",
+            "ارفع القلم",
+            "امسح"
+          ]
+        }
+      ]
+    },
+    5: {
+      id: 5,
+      cat: 2,
+      type: "qcm",
+      title: "التمرين رقم 05: اختيار من متعدد (خاصية التحسس وأنواع لبناتها)",
+      maxPoints: 5,
+      items: [
+        {
+          qIdx: 0,
+          text: "إلى كم نوع تنقسم لبنات التحسس في برنامج سكراتش؟",
+          correct: 1,
+          points: 1,
+          modelAnswer: "4 أنواع (لبنات الشرط، لبنات الاستشعار، المؤقت، السؤال والجواب)",
+          options: [
+            "نوعان فقط",
+            "4 أنواع (لبنات الشرط، لبنات الاستشعار، المؤقت، السؤال والجواب)",
+            "6 أنواع"
+          ]
+        },
+        {
+          qIdx: 1,
+          text: "اللبنة السداسية «ملامس لـ [مؤشر الفأرة] ؟» تُعد مثالاً عن أي نوع من لبنات التحسس؟",
+          correct: 0,
+          points: 1,
+          modelAnswer: "لبنات الشرط (تتحقق من صحة الشرط المرفق)",
+          options: [
+            "لبنات الشرط (تتحقق من صحة الشرط المرفق)",
+            "لبنات المؤقت",
+            "لبنات السؤال والجواب"
+          ]
+        },
+        {
+          qIdx: 2,
+          text: "اللبنة الدائرية «الموضع س للفأرة» التي تحدد قيمة معينة وتسمح بتسجيلها واسترجاعها تُصنف ضمن:",
+          correct: 0,
+          points: 1,
+          modelAnswer: "لبنات الاستشعار",
+          options: [
+            "لبنات الاستشعار",
+            "لبنات القلم",
+            "لبنات المظاهر"
+          ]
+        },
+        {
+          qIdx: 3,
+          text: "لإظهار سؤال على المنصة وانتظار إدخال إجابة من المستخدم عبر لوحة المفاتيح، نستخدم لبنة:",
+          correct: 1,
+          points: 1,
+          modelAnswer: "اسأل [ما اسمك؟] وانتظر",
+          options: [
+            "شغّل الصوت [مياو]",
+            "اسأل [ما اسمك؟] وانتظر",
+            "اجعل حجم القلم مساوياً (1)"
+          ]
+        },
+        {
+          qIdx: 4,
+          text: "ماذا تحسب لبنة «المؤقت» الموجودة في أداة التحسس؟",
+          correct: 1,
+          points: 1,
+          modelAnswer: "عدد الثواني التي مرت منذ فتح المشروع",
+          options: [
+            "عدد الكائنات الموجودة في المنصة",
+            "عدد الثواني التي مرت منذ فتح المشروع",
+            "سرعة حركة الكائن بالخطوات"
+          ]
+        }
+      ]
+    },
+    6: {
+      id: 6,
+      cat: 2,
+      type: "qcm",
+      title: "التمرين رقم 06: اختيار من متعدد (الحركة، المظاهر، والقلم والصوت)",
+      maxPoints: 5,
+      items: [
+        {
+          qIdx: 0,
+          text: "ما هو القسم من لبنات «الحركة» المسؤول عن تغيير اتجاه الكائن إلى الجهة المعاكسة عند ملامسته لحافة المنصة؟",
+          correct: 1,
+          points: 1,
+          modelAnswer: "لبنات الارتداد",
+          options: [
+            "لبنات الموضع",
+            "لبنات الارتداد",
+            "لبنات التحريك"
+          ]
+        },
+        {
+          qIdx: 1,
+          text: "ما الفرق بين تغيير مظهر «الكائن» وتغيير مظهر (خلفية) «المنصة»؟",
+          correct: 0,
+          points: 1,
+          modelAnswer: "تغيير مظهر الكائن يوحي بحركة طبيعية، وتغيير مظهر المنصة يوحي بالانتقال من مكان إلى آخر",
+          options: [
+            "تغيير مظهر الكائن يوحي بحركة طبيعية، وتغيير مظهر المنصة يوحي بالانتقال من مكان إلى آخر",
+            "كلاهما يستخدمان لمسح الرسومات من الشاشة",
+            "تغيير مظهر المنصة يتحكم في شدة الصوت"
+          ]
+        },
+        {
+          qIdx: 2,
+          text: "أي قسم من لبنات «المظاهر» يتحكم في إظهار أو إخفاء الكائن على المنصة؟",
+          correct: 1,
+          points: 1,
+          modelAnswer: "لبنات الظهور",
+          options: [
+            "لبنات الحجم",
+            "لبنات الظهور",
+            "لبنات التأثيرات"
+          ]
+        },
+        {
+          qIdx: 3,
+          text: "عندما نريد تحريك الكائن من مكان إلى آخر على المنصة دون أن يترك أثر رسم وراءه، نستخدم اللبنة:",
+          correct: 1,
+          points: 1,
+          modelAnswer: "ارفع القلم",
+          options: [
+            "أنزل القلم",
+            "ارفع القلم",
+            "اطبع"
+          ]
+        },
+        {
+          qIdx: 4,
+          text: "اللبنة «غيّر سرعة الأداء بمقدار (20)» الموجودة في أداة الصوت تندرج ضمن:",
+          correct: 0,
+          points: 1,
+          modelAnswer: "لبنات سرعة الأداء",
+          options: [
+            "لبنات سرعة الأداء",
+            "لبنات التشغيل والإيقاف",
+            "لبنات الشرط"
+          ]
+        }
+      ]
+    },
+    7: {
+      id: 7,
+      cat: 3,
+      type: "match",
+      title: "التمرين رقم 07: تصنيف اللبنات والوظائف حسب الأداة التابعة لها في سكراتش",
+      maxPoints: 5,
+      items: [
+        {
+          qIdx: 0,
+          text: "اللبنة «امسح» و «أنزل القلم» (مسح جميع الرسومات وإنزال القلم)",
+          correct: 0,
+          points: 1,
+          modelAnswer: "لبنات القلم",
+          options: ["لبنات القلم", "لبنات الصوت", "لبنات التحسس", "لبنات المظاهر", "لبنات الحركة"]
+        },
+        {
+          qIdx: 1,
+          text: "اللبنة «شغّل الصوت [مياو]» و «غيّر شدة الصوت» (تشغيل مقطع صوتي)",
+          correct: 1,
+          points: 1,
+          modelAnswer: "لبنات الصوت",
+          options: ["لبنات القلم", "لبنات الصوت", "لبنات التحسس", "لبنات المظاهر", "لبنات الحركة"]
+        },
+        {
+          qIdx: 2,
+          text: "اللبنة «إذا لامس اللون (...)» ومعرفة موقع مؤشر الفأرة",
+          correct: 2,
+          points: 1,
+          modelAnswer: "لبنات التحسس",
+          options: ["لبنات القلم", "لبنات الصوت", "لبنات التحسس", "لبنات المظاهر", "لبنات الحركة"]
+        },
+        {
+          qIdx: 3,
+          text: "اللبنة «غير المظهر إلى (القط 2)» وتغيير حجم الكائن وتأثيرات مظهره",
+          correct: 3,
+          points: 1,
+          modelAnswer: "لبنات المظاهر",
+          options: ["لبنات القلم", "لبنات الصوت", "لبنات التحسس", "لبنات المظاهر", "لبنات الحركة"]
+        },
+        {
+          qIdx: 4,
+          text: "اللبنة «استدر (15 درجة)» لتغيير اتجاه الكائن بزاوية محددة",
+          correct: 4,
+          points: 1,
+          modelAnswer: "لبنات الحركة",
+          options: ["لبنات القلم", "لبنات الصوت", "لبنات التحسس", "لبنات المظاهر", "لبنات الحركة"]
+        }
+      ]
+    },
+    8: {
+      id: 8,
+      cat: 3,
+      type: "match",
+      title: "التمرين رقم 08: مطابقة اللبنات والأقسام بوظيفتها الدقيقة في سكراتش",
+      maxPoints: 5,
+      items: [
+        {
+          qIdx: 0,
+          text: "تتحقق من صحة الشرط المرفق لتنفيذ أمر محدد (مثل: «ملامس لـ ؟»)",
+          correct: 0,
+          points: 1,
+          modelAnswer: "لبنات الشرط (التحسس)",
+          options: [
+            "لبنات الشرط (التحسس)",
+            "لبنات الاستشعار (التحسس)",
+            "لبنة ارفع القلم",
+            "لبنات الارتداد (الحركة)",
+            "لبنات التنقل (المظاهر)"
+          ]
+        },
+        {
+          qIdx: 1,
+          text: "تحدد قيمة معينة وتسمح بتسجيلها واسترجاعها (مثل: «الموضع س للفأرة»)",
+          correct: 1,
+          points: 1,
+          modelAnswer: "لبنات الاستشعار (التحسس)",
+          options: [
+            "لبنات الشرط (التحسس)",
+            "لبنات الاستشعار (التحسس)",
+            "لبنة ارفع القلم",
+            "لبنات الارتداد (الحركة)",
+            "لبنات التنقل (المظاهر)"
+          ]
+        },
+        {
+          qIdx: 2,
+          text: "تسمح برفع القلم لكي يتوقف الكائن عن الرسم بعد انتهاء المقطع البرمجي",
+          correct: 2,
+          points: 1,
+          modelAnswer: "لبنة ارفع القلم",
+          options: [
+            "لبنات الشرط (التحسس)",
+            "لبنات الاستشعار (التحسس)",
+            "لبنة ارفع القلم",
+            "لبنات الارتداد (الحركة)",
+            "لبنات التنقل (المظاهر)"
+          ]
+        },
+        {
+          qIdx: 3,
+          text: "تغيير اتجاه الكائن إلى الجهة المعاكسة عند ملامسته لحافة المنصة",
+          correct: 3,
+          points: 1,
+          modelAnswer: "لبنات الارتداد (الحركة)",
+          options: [
+            "لبنات الشرط (التحسس)",
+            "لبنات الاستشعار (التحسس)",
+            "لبنة ارفع القلم",
+            "لبنات الارتداد (الحركة)",
+            "لبنات التنقل (المظاهر)"
+          ]
+        },
+        {
+          qIdx: 4,
+          text: "تساعد على تغيير مظهر الكائن إلى مظهر آخر تمت إضافته مسبقاً",
+          correct: 4,
+          points: 1,
+          modelAnswer: "لبنات التنقل (المظاهر)",
+          options: [
+            "لبنات الشرط (التحسس)",
+            "لبنات الاستشعار (التحسس)",
+            "لبنة ارفع القلم",
+            "لبنات الارتداد (الحركة)",
+            "لبنات التنقل (المظاهر)"
+          ]
+        }
+      ]
+    },
+    9: {
+      id: 9,
+      cat: 4,
+      type: "order_plus_qcm",
+      title: "التمرين رقم 09: الترتيب المنطقي (خطوات إضافة صوت من ملف + برمجة الرسم بالقلم)",
+      maxPoints: 5,
+      items: [
+        {
+          qIdx: 0,
+          text: "إضافة صوت من ملف: «اختر مجلداً معيناً ثم انقر على الملف الصوتي المناسب»",
+          correct: 3,
+          points: 1,
+          isRank: true,
+          modelAnswer: "المرتبة 3 (الخطوة الثالثة)"
+        },
+        {
+          qIdx: 1,
+          text: "إضافة صوت من ملف: «انقر على التبويب (الأصوات) من منطقة التحكم»",
+          correct: 1,
+          points: 1,
+          isRank: true,
+          modelAnswer: "المرتبة 1 (الخطوة الأولى)"
+        },
+        {
+          qIdx: 2,
+          text: "إضافة صوت من ملف: «انقر على الزر (موافق)»",
+          correct: 4,
+          points: 1,
+          isRank: true,
+          modelAnswer: "المرتبة 4 (الخطوة الرابعة)"
+        },
+        {
+          qIdx: 3,
+          text: "إضافة صوت من ملف: «انقر على الزر (استيراد)»",
+          correct: 2,
+          points: 1,
+          isRank: true,
+          modelAnswer: "المرتبة 2 (الخطوة الثانية)"
+        },
+        {
+          qIdx: 4,
+          text: "سؤال إضافي: ما هو الشكل الهندسي الذي يرسمه المقطع البرمجي: [عند النقر على العلم ← أنزل القلم ← كرر (3) مرة: (تحرك 120 خطوة، استدر 120 درجة)]؟",
+          correct: 1,
+          points: 1,
+          isRank: false,
+          modelAnswer: "مثلث",
+          options: [
+            "مربع",
+            "مثلث",
+            "قطعة مستقيمة"
+          ]
+        }
+      ]
+    },
+    10: {
+      id: 10,
+      cat: 4,
+      type: "order_plus_qcm",
+      title: "التمرين رقم 10: الترتيب المنطقي (خطوات إضافة تسجيل صوتي + برمجة الرسم بالقلم)",
+      maxPoints: 5,
+      items: [
+        {
+          qIdx: 0,
+          text: "إضافة تسجيل صوتي: «تظهر علبة حوار تمثل مسجل الصوت، انقر على الزر الأحمر لبداية التسجيل»",
+          correct: 3,
+          points: 1,
+          isRank: true,
+          modelAnswer: "المرتبة 3 (الخطوة الثالثة)"
+        },
+        {
+          qIdx: 1,
+          text: "إضافة تسجيل صوتي: «انقر على الزر (موافق) لحفظ التسجيل»",
+          correct: 4,
+          points: 1,
+          isRank: true,
+          modelAnswer: "المرتبة 4 (الخطوة الرابعة)"
+        },
+        {
+          qIdx: 2,
+          text: "إضافة تسجيل صوتي: «انقر على التبويب (الأصوات) من منطقة التحكم»",
+          correct: 1,
+          points: 1,
+          isRank: true,
+          modelAnswer: "المرتبة 1 (الخطوة الأولى)"
+        },
+        {
+          qIdx: 3,
+          text: "إضافة تسجيل صوتي: «انقر على الزر (تسجيل)»",
+          correct: 2,
+          points: 1,
+          isRank: true,
+          modelAnswer: "المرتبة 2 (الخطوة الثانية)"
+        },
+        {
+          qIdx: 4,
+          text: "سؤال إضافي: ما هو الشكل الهندسي الذي يرسمه المقطع البرمجي: [عند النقر على العلم ← أنزل القلم ← كرر (6) مرة: (تحرك 60 خطوة، استدر 60 درجة)]؟",
+          correct: 1,
+          points: 1,
+          isRank: false,
+          modelAnswer: "سداسي",
+          options: [
+            "قطعة مستقيمة",
+            "سداسي",
+            "مثلث"
+          ]
+        }
+      ]
+    }
+  };
+
+  /* =========================================================================
+     2. فك التشفير والتصحيح الآلي وإدارة السجلات الدائمة في localStorage
+     ========================================================================= */
+  const RECORDS_KEY = "TEACHER_3AM_GRADED_RECORDS_V1";
+  const TEACHER_EMAIL_KEY = "TEACHER_3AM_SAVED_EMAIL_V1";
+  let studentRecords = [];
+
+  const teacherEmailInput = document.getElementById("teacherEmailInput");
+
+  function loadRecords() {
+    try {
+      const savedMail = localStorage.getItem(TEACHER_EMAIL_KEY);
+      if (savedMail) teacherEmailInput.value = savedMail;
+
+      const raw = localStorage.getItem(RECORDS_KEY);
+      if (raw) {
+        studentRecords = JSON.parse(raw) || [];
+      }
+    } catch (e) {
+      studentRecords = [];
+    }
+  }
+
+  function saveRecords() {
+    try {
+      localStorage.setItem(RECORDS_KEY, JSON.stringify(studentRecords));
+      const badge = document.getElementById("autoSaveStatusBadge");
+      if (badge) {
+        badge.textContent = "✅ تم الحفظ التلقائي (" + studentRecords.length + " تلميذ) - " + new Date().toLocaleTimeString("ar-DZ");
+      }
+    } catch (e) {}
+  }
+
+  teacherEmailInput.addEventListener("input", function() {
+    try {
+      localStorage.setItem(TEACHER_EMAIL_KEY, teacherEmailInput.value.trim());
+    } catch (e) {}
+  });
+
+  function utf8ToBase64(str) {
+    const bytes = new TextEncoder().encode(str);
+    let bin = "";
+    for (let i = 0; i < bytes.length; i++) {
+      bin += String.fromCharCode(bytes[i]);
+    }
+    return btoa(bin);
+  }
+
+  function base64ToUtf8(b64Str) {
+    const clean = b64Str.trim();
+    const bin = atob(clean);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) {
+      bytes[i] = bin.charCodeAt(i);
+    }
+    return new TextDecoder("utf-8").decode(bytes);
+  }
+
+  function formatDuration(sec) {
+    const s = Math.max(0, parseInt(sec, 10) || 0);
+    const m = Math.floor(s / 60);
+    const r = s % 60;
+    return m + " د و " + r + " ث";
+  }
+
+  function playBeep() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.14);
+    } catch (e) {}
+  }
+
+  function getStudentAnswerText(itemDef, studentVal) {
+    if (studentVal === -1 || studentVal === undefined || studentVal === null) {
+      return "لم يُجب (متروك)";
+    }
+    if (itemDef.isRank) {
+      return "المرتبة / الخطوة (" + studentVal + ")";
+    }
+    if (itemDef.options && itemDef.options[studentVal] !== undefined) {
+      return itemDef.options[studentVal];
+    }
+    return String(studentVal);
+  }
+
+  function evaluateStudentPayload(payload) {
+    const exIds = payload.exIds || payload.e;
+    const ansMatrix = payload.ans || payload.a;
+    if (!Array.isArray(exIds) || !Array.isArray(ansMatrix) || exIds.length !== 4) {
+      throw new Error("بنية التمارين في الكود غير صالحة");
+    }
+
+    let totalScore = 0;
+    const detailedExercises = [];
+
+    exIds.forEach(function(exId, idx) {
+      const exDef = FULL_EXERCISE_DB[exId];
+      if (!exDef) throw new Error("رقم التمرين غير معروف: " + exId);
+      const studentExAns = ansMatrix[idx] || [];
+      let exScore = 0;
+      const gradedItems = [];
+
+      exDef.items.forEach(function(itemDef, qIdx) {
+        const sVal = studentExAns[qIdx] !== undefined ? studentExAns[qIdx] : -1;
+        const isCorrect = sVal === itemDef.correct;
+        const earned = isCorrect ? itemDef.points : 0;
+        exScore += earned;
+
+        gradedItems.push({
+          qText: itemDef.text,
+          studentAnswerText: getStudentAnswerText(itemDef, sVal),
+          modelAnswerText: itemDef.modelAnswer,
+          isCorrect: isCorrect,
+          earnedPoints: earned,
+          maxPoints: itemDef.points
+        });
+      });
+
+      totalScore += exScore;
+      detailedExercises.push({
+        exId: exId,
+        title: exDef.title,
+        exScore: exScore,
+        maxPoints: exDef.maxPoints,
+        items: gradedItems
+      });
+    });
+
+    return {
+      totalScore: Math.round(totalScore * 100) / 100,
+      detailedExercises: detailedExercises
+    };
+  }
+
+  function showToast(msg, isError) {
+    const toast = document.getElementById("scanToast");
+    toast.textContent = msg;
+    toast.className = "scan-toast" + (isError ? " error" : "");
+    toast.style.display = "flex";
+    setTimeout(function() {
+      toast.style.display = "none";
+    }, 6000);
+  }
+
+  function splitFullName(fullName) {
+    const parts = (fullName || "").trim().split(/\s+/);
+    if (parts.length <= 1) return { ln: parts[0] || "", fn: "-" };
+    return { ln: parts[0], fn: parts.slice(1).join(" ") };
+  }
+
+  function upsertSingleStudentData(stData) {
+    let ln = (stData.ln || "").trim();
+    let fn = (stData.fn || "").trim();
+    const n1 = (stData.n1 || "").trim();
+    if ((!ln || !fn) && n1) {
+      const sp = splitFullName(n1);
+      if (!ln) ln = sp.ln;
+      if (!fn) fn = sp.fn;
+    }
+    const fullName = (ln + " " + fn).trim();
+    const cls = (stData.c || stData.cls || "").trim();
+    const timeSpent = stData.t !== undefined ? stData.t : (stData.timeSpent || 0);
+    const exIds = stData.exIds || stData.e;
+    const ans = stData.ans || stData.a;
+
+    if (!fullName || !cls || !Array.isArray(exIds)) {
+      throw new Error("بيانات التلميذ غير مكتملة");
+    }
+
+    const evaluation = evaluateStudentPayload({ exIds: exIds, ans: ans });
+    const nowStr = new Date().toLocaleString("ar-DZ");
+
+    const existingIdx = studentRecords.findIndex(function(r) {
+      return r.ln === ln && r.fn === fn && r.cls === cls;
+    });
+
+    const recordObj = {
+      id: existingIdx !== -1 ? studentRecords[existingIdx].id : ("REC_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7)),
+      ln: ln,
+      fn: fn,
+      name: fullName,
+      cls: cls,
+      exIds: exIds,
+      ans: ans,
+      timeSpent: timeSpent,
+      score: evaluation.totalScore,
+      details: evaluation.detailedExercises,
+      scannedAt: stData.scannedAt || nowStr
+    };
+
+    if (existingIdx !== -1) {
+      studentRecords[existingIdx] = recordObj;
+    } else {
+      studentRecords.unshift(recordObj);
+    }
+
+    return recordObj;
+  }
+
+  function processEncodedOrJsonInput(rawInput) {
+    try {
+      const trimmed = rawInput.trim();
+      let data = null;
+
+      // قد يكون النص JSON مباشر (من ملف احتياطي) أو كود Base64
+      if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+        data = JSON.parse(trimmed);
+      } else {
+        // استخراج كود Base64 حتى لو كان داخل نص إيميل
+        const b64Match = trimmed.match(/\[BACKUP_CODE_START\]([\s\S]*?)\[BACKUP_CODE_END\]/) ||
+                         trimmed.match(/\[BACKUP_CODE\]([\s\S]*?)\[\/BACKUP_CODE\]/);
+        const codeToDecode = b64Match ? b64Match[1].trim() : trimmed;
+        const jsonStr = base64ToUtf8(codeToDecode);
+        data = JSON.parse(jsonStr);
+      }
+
+      // الحالة 1: ملف استرجاع قائمة كاملة للأستاذ
+      if (data && Array.isArray(data.teacherBackup)) {
+        let restoredCount = 0;
+        data.teacherBackup.forEach(function(item) {
+          if (item.ans && item.exIds) {
+            upsertSingleStudentData(item);
+            restoredCount++;
+          } else if (item.details && item.name) {
+            const exists = studentRecords.findIndex(function(r) {
+              return r.name === item.name && r.cls === item.cls;
+            });
+            if (exists !== -1) studentRecords[exists] = item;
+            else studentRecords.push(item);
+            restoredCount++;
+          }
+        });
+        saveRecords();
+        renderStudentsTable();
+        playBeep();
+        showToast("✅ تم استرجاع ودمج (" + restoredCount + ") تلميذ في الجدول بنجاح!", false);
+        return true;
+      }
+
+      // الحالة 2: كود QR شامل لجميع التلاميذ الذين أجابوا في نفس الحاسوب (batch)
+      if (data && Array.isArray(data.batch)) {
+        const names = [];
+        data.batch.forEach(function(stItem) {
+          const rec = upsertSingleStudentData(stItem);
+          names.push(rec.name + " (" + rec.score + "/20)");
+        });
+        saveRecords();
+        renderStudentsTable();
+        playBeep();
+        showToast("✅ تم مسح وتصحيح (" + data.batch.length + ") تلاميذ من نفس الحاسوب: " + names.join(" ، "), false);
+        return true;
+      }
+
+      // الحالة 3: تلميذ واحد
+      const rec = upsertSingleStudentData(data);
+      saveRecords();
+      renderStudentsTable();
+      playBeep();
+      showToast("✅ تم تصحيح وحفظ ورقة: " + rec.ln + " " + rec.fn + " (" + rec.cls + ") — العلامة: " + rec.score + " / 20", false);
+      return true;
+    } catch (err) {
+      showToast("❌ تعذر قراءة الكود أو الملف: تأكد من صحة كود QR أو ملف الإجابة.", true);
+      return false;
+    }
+  }
+
+  /* =========================================================================
+     3. عرض الجدول والإحصائيات والفلترة
+     ========================================================================= */
+  const filterClassSelect = document.getElementById("filterClassSelect");
+  const searchStudentInput = document.getElementById("searchStudentInput");
+  const studentsTableBody = document.getElementById("studentsTableBody");
+
+  function getFilteredRecords() {
+    const clsFilter = filterClassSelect.value;
+    const query = searchStudentInput.value.trim().toLowerCase();
+    return studentRecords.filter(function(r) {
+      const matchClass = clsFilter === "ALL" || r.cls === clsFilter;
+      const fullSearch = ((r.ln || "") + " " + (r.fn || "") + " " + (r.name || "")).toLowerCase();
+      const matchName = !query || fullSearch.includes(query);
+      return matchClass && matchName;
+    });
+  }
+
+  function updateStats(filtered) {
+    const total = filtered.length;
+    document.getElementById("statTotal").textContent = String(total);
+    if (total === 0) {
+      document.getElementById("statAvg").textContent = "0.00";
+      document.getElementById("statMax").textContent = "0";
+      document.getElementById("statPassRate").textContent = "0%";
+      return;
+    }
+    let sum = 0;
+    let max = 0;
+    let passCount = 0;
+    filtered.forEach(function(r) {
+      sum += r.score;
+      if (r.score > max) max = r.score;
+      if (r.score >= 10) passCount++;
+    });
+    document.getElementById("statAvg").textContent = (sum / total).toFixed(2);
+    document.getElementById("statMax").textContent = String(max);
+    document.getElementById("statPassRate").textContent = Math.round((passCount / total) * 100) + "%";
+  }
+
+  function renderStudentsTable() {
+    const filtered = getFilteredRecords();
+    updateStats(filtered);
+
+    if (filtered.length === 0) {
+      studentsTableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 24px; color: #64748b; font-weight: bold;">لا توجد سجلات مطابقة للعرض حالياً.</td></tr>';
+      return;
+    }
+
+    studentsTableBody.innerHTML = "";
+    filtered.forEach(function(rec, idx) {
+      const tr = document.createElement("tr");
+
+      let ln = rec.ln || "";
+      let fn = rec.fn || "";
+      if (!ln && rec.name) {
+        const sp = splitFullName(rec.name);
+        ln = sp.ln;
+        fn = sp.fn;
+      }
+
+      const exBadges = rec.exIds.map(function(id) {
+        return '<span class="ex-pill">ت ' + id + '</span>';
+      }).join("");
+
+      const scoreClass = rec.score >= 10 ? "score-pass" : "score-fail";
+
+      tr.innerHTML =
+        '<td>' + (idx + 1) + '</td>' +
+        '<td style="font-weight:bold;">' + escapeHtml(ln) + '</td>' +
+        '<td style="font-weight:bold;">' + escapeHtml(fn) + '</td>' +
+        '<td><strong>' + escapeHtml(rec.cls) + '</strong></td>' +
+        '<td>' + exBadges + '</td>' +
+        '<td>' + formatDuration(rec.timeSpent) + '</td>' +
+        '<td><span class="score-badge ' + scoreClass + '">' + rec.score + ' / 20</span></td>' +
+        '<td>' +
+          '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
+            '<button class="btn btn-primary btn-sm view-sheet-btn" data-id="' + rec.id + '">📄 ورقة التلميذ</button>' +
+            '<button class="btn btn-purple btn-sm email-student-btn" data-id="' + rec.id + '">✉️ إرسال بالإيميل</button>' +
+            '<button class="btn btn-danger btn-sm del-rec-btn" data-id="' + rec.id + '" title="حذف">🗑️</button>' +
+          '</div>' +
+        '</td>';
+
+      studentsTableBody.appendChild(tr);
+    });
+
+    document.querySelectorAll(".view-sheet-btn").forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        const recId = btn.getAttribute("data-id");
+        const rec = studentRecords.find(function(r) { return r.id === recId; });
+        if (rec) openParentReportModal([rec]);
+      });
+    });
+
+    document.querySelectorAll(".email-student-btn").forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        const recId = btn.getAttribute("data-id");
+        const rec = studentRecords.find(function(r) { return r.id === recId; });
+        if (rec) openStudentEmailModal(rec);
+      });
+    });
+
+    document.querySelectorAll(".del-rec-btn").forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        const recId = btn.getAttribute("data-id");
+        if (confirm("هل أنت متأكد من حذف ورقة هذا التلميذ من السجل؟")) {
+          studentRecords = studentRecords.filter(function(r) { return r.id !== recId; });
+          saveRecords();
+          renderStudentsTable();
+        }
+      });
+    });
+  }
+
+  function escapeHtml(str) {
+    return String(str || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  filterClassSelect.addEventListener("change", renderStudentsTable);
+  searchStudentInput.addEventListener("input", renderStudentsTable);
+
+  document.getElementById("clearAllRecordsBtn").addEventListener("click", function() {
+    if (studentRecords.length === 0) return;
+    if (confirm("تحذير: هل أنت متأكد من مسح جميع أوراق التلاميذ المسجلة؟ ينصح بحفظ نسخة احتياطية أو إرسالها لإيميلك أولاً.")) {
+      studentRecords = [];
+      saveRecords();
+      renderStudentsTable();
+    }
+  });
+
+  /* =========================================================================
+     4. حفظ واسترجاع القائمة الكاملة وإرسالها لإيميل الأستاذ وإيميل التلميذ
+     ========================================================================= */
+  function buildCompactBackupCode() {
+    const compactList = studentRecords.map(function(r) {
+      return {
+        ln: r.ln || splitFullName(r.name).ln,
+        fn: r.fn || splitFullName(r.name).fn,
+        c: r.cls,
+        t: r.timeSpent,
+        exIds: r.exIds,
+        ans: r.ans,
+        scannedAt: r.scannedAt,
+        score: r.score,
+        details: r.ans ? undefined : r.details
+      };
+    });
+    return utf8ToBase64(JSON.stringify({ teacherBackup: compactList }));
+  }
+
+  function buildTeacherFullEmailReportText() {
+    const lines = [];
+    lines.push("====================================================");
+    lines.push("تقرير نقاط وإجابات تلاميذ السنة الثالثة متوسط (3AM) - الإعلام الآلي (سكراتش)");
+    lines.push("تاريخ استخراج النسخة: " + new Date().toLocaleString("ar-DZ"));
+    lines.push("إجمالي التلاميذ المسجلين: " + studentRecords.length);
+    lines.push("====================================================");
+    lines.push("");
+
+    studentRecords.forEach(function(r, idx) {
+      const ln = r.ln || splitFullName(r.name).ln;
+      const fn = r.fn || splitFullName(r.name).fn;
+      lines.push((idx + 1) + ") اللقب: " + ln + " | الاسم: " + fn + " | القسم: " + r.cls + " | العلامة النهائية: " + r.score + " / 20");
+      lines.push("   التمارين المسحوبة: [" + r.exIds.join("، ") + "] | الوقت: " + formatDuration(r.timeSpent));
+      if (r.details) {
+        r.details.forEach(function(ex) {
+          lines.push("   - " + ex.title + ": (" + ex.exScore + " / " + ex.maxPoints + ")");
+        });
+      }
+      lines.push("----------------------------------------------------");
+    });
+
+    lines.push("");
+    lines.push("🔒 كود الاسترجاع الشامل [BACKUP_CODE] (لإعادة فتح القائمة كاملة في تطبيق الأستاذ في أي وقت، انسخ ما بين القوسين والصقه في خانة الكود بملف الأستاذ):");
+    lines.push("[BACKUP_CODE_START]");
+    lines.push(buildCompactBackupCode());
+    lines.push("[BACKUP_CODE_END]");
+
+    return lines.join("\r\n");
+  }
+
+  // أ. حفظ القائمة الكاملة في ملف احتياطي (.json) على الهاتف/الحاسوب
+  document.getElementById("saveBackupFileBtn").addEventListener("click", function() {
+    if (studentRecords.length === 0) {
+      alert("القائمة فارغة حالياً! قم بمسح أوراق التلاميذ أولاً.");
+      return;
+    }
+    const backupObj = {
+      savedAt: new Date().toISOString(),
+      totalStudents: studentRecords.length,
+      teacherBackup: studentRecords
+    };
+    const blob = new Blob([JSON.stringify(backupObj, null, 2)], { type: "application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const dateTag = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = "Backup_Teacher_3AM_Students_" + dateTag + ".json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("✅ تم تنزيل ملف النسخة الاحتياطية الكاملة لقائمة التلاميذ بنجاح!", false);
+  });
+
+  // ب. استرجاع قائمة محفوظة سابقاً من ملف
+  const hiddenRestoreInput = document.getElementById("hiddenRestoreInput");
+  document.getElementById("restoreBackupFileBtn").addEventListener("click", function() {
+    hiddenRestoreInput.click();
+  });
+
+  hiddenRestoreInput.addEventListener("change", function(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      const content = (evt.target.result || "").trim();
+      if (content) processEncodedOrJsonInput(content);
+    };
+    reader.readAsText(file, "utf-8");
+    e.target.value = "";
+  });
+
+  // ج. إرسال جميع المعلومات معاً إلى إيميل الأستاذ الخاص
+  document.getElementById("sendAllToTeacherEmailBtn").addEventListener("click", function() {
+    if (studentRecords.length === 0) {
+      alert("لا توجد سجلات تلاميذ حالياً لإرسالها!");
+      return;
+    }
+    const teacherMail = teacherEmailInput.value.trim();
+    const subject = "نسخة احتياطية شاملة لنقاط وإجابات تلاميذ 3AM (" + studentRecords.length + " تلميذ)";
+    const fullText = buildTeacherFullEmailReportText();
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(fullText).catch(function(){});
+    }
+
+    const mailtoUrl = "mailto:" + encodeURIComponent(teacherMail) +
+      "?subject=" + encodeURIComponent(subject) +
+      "&body=" + encodeURIComponent(fullText);
+
+    window.location.href = mailtoUrl;
+    showToast("📨 تم فتح تطبيق البريد الإلكتروني لإرسال جميع المعلومات إلى إيميلك (وتم نسخها للحافظة أيضاً).", false);
+  });
+
+  // د. نسخ التقرير الشامل وكود الاسترجاع
+  document.getElementById("copyAllBackupTextBtn").addEventListener("click", function() {
+    if (studentRecords.length === 0) {
+      alert("القائمة فارغة حالياً!");
+      return;
+    }
+    const fullText = buildTeacherFullEmailReportText();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(fullText).then(function() {
+        showToast("📋 تم نسخ التقرير الشامل وكود الاسترجاع الكامل! يمكنك لصقه في إيميلك أو الملاحظات.", false);
+      });
+    } else {
+      const ta = document.getElementById("manualCodeInput");
+      ta.value = fullText;
+      ta.select();
+      document.execCommand("copy");
+      showToast("📋 تم نسخ التقرير الشامل وكود الاسترجاع الكامل!", false);
+    }
+  });
+
+  // هـ. مشاركة عبر تطبيقات الهاتف (Web Share API)
+  document.getElementById("shareAllMobileBtn").addEventListener("click", function() {
+    if (studentRecords.length === 0) {
+      alert("القائمة فارغة حالياً!");
+      return;
+    }
+    const fullText = buildTeacherFullEmailReportText();
+    if (navigator.share) {
+      navigator.share({
+        title: "قائمة نقاط وإجابات تلاميذ 3AM",
+        text: fullText
+      }).catch(function(){});
+    } else {
+      alert("خاصية المشاركة المباشرة مدعومة على الهواتف الذكية. يمكنك استخدام زر (إرسال إلى إيميلي الخاص) أو (حفظ القائمة في ملف).");
+    }
+  });
+
+  // و. إرسال النتيجة والتصحيح بالإيميل لكل تلميذ على حدة
+  const studentEmailModal = document.getElementById("studentEmailModal");
+  const recipientStudentEmailInput = document.getElementById("recipientStudentEmailInput");
+  const studentEmailBodyTextarea = document.getElementById("studentEmailBodyTextarea");
+  let activeEmailStudentRec = null;
+
+  function buildSingleStudentEmailText(rec) {
+    const ln = rec.ln || splitFullName(rec.name).ln;
+    const fn = rec.fn || splitFullName(rec.name).fn;
+    const lines = [];
+    lines.push("الجمهورية الجزائرية الديمقراطية الشعبية — وزارة التربية الوطنية");
+    lines.push("نتيجة وتصحيح الفرض المحروس الأول في مادة الإعلام الآلي (السنة الثالثة متوسط - 3AM)");
+    lines.push("====================================================");
+    lines.push("اللقب: " + ln + " | الاسم: " + fn + " | القسم: " + rec.cls);
+    lines.push("النقطة النهائية المحصل عليها: " + rec.score + " / 20");
+    lines.push("التقدير البيداغوجي: " + getAppreciation(rec.score));
+    lines.push("التمارين الممتحن فيها: [" + rec.exIds.join("، ") + "] | الوقت المستغرق: " + formatDuration(rec.timeSpent));
+    lines.push("====================================================");
+    lines.push("");
+
+    rec.details.forEach(function(exBlock) {
+      lines.push("🔹 " + exBlock.title + " (العلامة: " + exBlock.exScore + " / " + exBlock.maxPoints + "):");
+      exBlock.items.forEach(function(item, qIdx) {
+        const statusMark = item.isCorrect ? "✔ [صحيح]" : "✖ [خطأ]";
+        lines.push("  " + (qIdx + 1) + ". " + item.qText);
+        lines.push("     - إجابة التلميذ: " + item.studentAnswerText + " " + statusMark + " (" + item.earnedPoints + "/" + item.maxPoints + ")");
+        if (!item.isCorrect) {
+          lines.push("     - التصحيح النموذجي: " + item.modelAnswerText);
+        }
+      });
+      lines.push("----------------------------------------------------");
+    });
+
+    return lines.join("\r\n");
+  }
+
+  function openStudentEmailModal(rec) {
+    activeEmailStudentRec = rec;
+    const ln = rec.ln || splitFullName(rec.name).ln;
+    const fn = rec.fn || splitFullName(rec.name).fn;
+    document.getElementById("studentEmailModalTitle").textContent = "✉️ إرسال النتيجة والتصحيح للتلميذ: " + ln + " " + fn + " (" + rec.cls + ")";
+    recipientStudentEmailInput.value = "";
+    studentEmailBodyTextarea.value = buildSingleStudentEmailText(rec);
+    studentEmailModal.style.display = "block";
+  }
+
+  document.getElementById("closeStudentEmailModalBtn").addEventListener("click", function() {
+    studentEmailModal.style.display = "none";
+  });
+
+  document.getElementById("launchStudentMailtoBtn").addEventListener("click", function() {
+    if (!activeEmailStudentRec) return;
+    const recipient = recipientStudentEmailInput.value.trim();
+    const ln = activeEmailStudentRec.ln || splitFullName(activeEmailStudentRec.name).ln;
+    const fn = activeEmailStudentRec.fn || splitFullName(activeEmailStudentRec.name).fn;
+    const subject = "نتيجة وتصحيح فرض الإعلام الآلي (3AM) - التلميذ(ة): " + ln + " " + fn + " (" + activeEmailStudentRec.cls + ")";
+    const body = studentEmailBodyTextarea.value;
+
+    const mailtoUrl = "mailto:" + encodeURIComponent(recipient) +
+      "?subject=" + encodeURIComponent(subject) +
+      "&body=" + encodeURIComponent(body);
+    window.location.href = mailtoUrl;
+  });
+
+  document.getElementById("copyStudentEmailTextBtn").addEventListener("click", function() {
+    studentEmailBodyTextarea.select();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(studentEmailBodyTextarea.value);
+    } else {
+      document.execCommand("copy");
+    }
+    showToast("📋 تم نسخ نص رسالة التلميذ بنجاح!", false);
+  });
+
+  /* =========================================================================
+     5. تصدير النقاط إلى ملف Excel (CSV يدعم العربية UTF-8 BOM)
+     ========================================================================= */
+  document.getElementById("exportCsvBtn").addEventListener("click", function() {
+    const filtered = getFilteredRecords();
+    if (filtered.length === 0) {
+      alert("لا توجد بيانات لتصديرها!");
+      return;
+    }
+
+    const headers = [
+      "الرقم",
+      "اللقب",
+      "الاسم",
+      "القسم",
+      "أرقام التمارين المسحوبة",
+      "علامة التمرين 1 (/5)",
+      "علامة التمرين 2 (/5)",
+      "علامة التمرين 3 (/5)",
+      "علامة التمرين 4 (/5)",
+      "النقطة النهائية (/20)",
+      "الوقت المستغرق",
+      "تاريخ المسح"
+    ];
+
+    const rows = [headers];
+    filtered.forEach(function(r, idx) {
+      const ln = r.ln || splitFullName(r.name).ln;
+      const fn = r.fn || splitFullName(r.name).fn;
+      const exScores = r.details.map(function(d) { return d.exScore; });
+      rows.push([
+        idx + 1,
+        ln,
+        fn,
+        r.cls,
+        r.exIds.join(" - "),
+        exScores[0] !== undefined ? exScores[0] : "",
+        exScores[1] !== undefined ? exScores[1] : "",
+        exScores[2] !== undefined ? exScores[2] : "",
+        exScores[3] !== undefined ? exScores[3] : "",
+        r.score,
+        formatDuration(r.timeSpent),
+        r.scannedAt || ""
+      ]);
+    });
+
+    const csvContent = "\uFEFF" + rows.map(function(row) {
+      return row.map(function(cell) {
+        const str = String(cell).replace(/"/g, '""');
+        return '"' + str + '"';
+      }).join(";");
+    }).join("\r\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const clsName = filterClassSelect.value === "ALL" ? "All_Classes" : filterClassSelect.value;
+    a.href = url;
+    a.download = "نقاط_الفرض_الأول_3AM_" + clsName + ".csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  /* =========================================================================
+     6. توليد وعرض وثيقة التلميذ الرسمية لولي الأمر (للطباعة أو PDF)
+     ========================================================================= */
+  const reportModal = document.getElementById("reportModal");
+  const reportSheetsHolder = document.getElementById("reportSheetsHolder");
+
+  function getAppreciation(score) {
+    if (score >= 18) return "ممتاز — تحكم رائع في البرمجة بلغة سكراتش";
+    if (score >= 15) return "جيد جداً — عمل موفق";
+    if (score >= 12) return "جيد — واصل الاجتهاد";
+    if (score >= 10) return "متوسط — يحتاج إلى مزيد من التركيز";
+    return "دون المتوسط — يجب مراجعة الدروس";
+  }
+
+  function buildOfficialSheetHTML(rec) {
+    const ln = rec.ln || splitFullName(rec.name).ln;
+    const fn = rec.fn || splitFullName(rec.name).fn;
+    let exercisesHtml = "";
+    rec.details.forEach(function(exBlock) {
+      let rowsHtml = "";
+      exBlock.items.forEach(function(item, qIdx) {
+        const statusCellClass = item.isCorrect ? "ans-correct" : "ans-wrong";
+        const statusIcon = item.isCorrect ? "✔ إجابة صحيحة: " : "✖ إجابة خاطئة: ";
+        rowsHtml +=
+          '<tr>' +
+            '<td style="width:38%;font-weight:bold;">' + (qIdx + 1) + '. ' + escapeHtml(item.qText) + '</td>' +
+            '<td class="' + statusCellClass + '" style="width:25%;">' + statusIcon + escapeHtml(item.studentAnswerText) + '</td>' +
+            '<td style="width:25%;color:#1e3a8a;font-weight:bold;">' + escapeHtml(item.modelAnswerText) + '</td>' +
+            '<td style="width:12%;text-align:center;font-weight:bold;">' + item.earnedPoints + ' / ' + item.maxPoints + '</td>' +
+          '</tr>';
+      });
+
+      exercisesHtml +=
+        '<div class="sheet-ex-block">' +
+          '<div class="sheet-ex-title">' +
+            '<span>' + escapeHtml(exBlock.title) + '</span>' +
+            '<span>العلامة الجزئية: ' + exBlock.exScore + ' / ' + exBlock.maxPoints + '</span>' +
+          '</div>' +
+          '<table class="sheet-table">' +
+            '<thead>' +
+              '<tr>' +
+                '<th>نص السؤال / الفرع</th>' +
+                '<th>إجابة التلميذ الفعلية</th>' +
+                '<th>الإجابة النموذجية</th>' +
+                '<th style="text-align:center;">العلامة</th>' +
+              '</tr>' +
+            '</thead>' +
+            '<tbody>' + rowsHtml + '</tbody>' +
+          '</table>' +
+        '</div>';
+    });
+
+    return (
+      '<div class="official-sheet">' +
+        '<div class="sheet-header">' +
+          '<p>الجمهورية الجزائرية الديمقراطية الشعبية — وزارة التربية الوطنية</p>' +
+          '<h2>ورقة الإجابة الفردية والتصحيح النموذجي للفرض المحروس الأول في مادة الإعلام الآلي</h2>' +
+          '<p>المستوى: السنة الثالثة متوسط (3AM) | الميدان: بناء المشاريع (البرمجة بلغة سكراتش Scratch)</p>' +
+        '</div>' +
+        '<div class="sheet-meta-grid">' +
+          '<div><strong>اللقب:</strong> ' + escapeHtml(ln) + '</div>' +
+          '<div><strong>الاسم:</strong> ' + escapeHtml(fn) + '</div>' +
+          '<div><strong>القسم:</strong> ' + escapeHtml(rec.cls) + '</div>' +
+          '<div><strong>أرقام التمارين الممتحن فيها:</strong> [' + rec.exIds.join("، ") + ']</div>' +
+          '<div><strong>الوقت المستغرق:</strong> ' + formatDuration(rec.timeSpent) + '</div>' +
+        '</div>' +
+        '<div class="sheet-score-box">' +
+          'النقطة النهائية المحصل عليها: <span style="font-size:24px;color:' + (rec.score >= 10 ? '#15803d' : '#b91c1c') + ';">' + rec.score + ' / 20</span>' +
+          ' &nbsp;|&nbsp; التقدير البيداغوجي: ' + getAppreciation(rec.score) +
+        '</div>' +
+        exercisesHtml +
+        '<div class="sheet-footer-sign">' +
+          '<div class="sign-box">ملاحظة وتوقيع أستاذ المادة:</div>' +
+          '<div class="sign-box">اطلاع وإمضاء ولي الأمر:</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function openParentReportModal(recordsList) {
+    reportSheetsHolder.innerHTML = recordsList.map(buildOfficialSheetHTML).join('<div style="height:24px;" class="no-print"></div>');
+    reportModal.style.display = "block";
+  }
+
+  document.getElementById("closeReportBtn").addEventListener("click", function() {
+    reportModal.style.display = "none";
+  });
+
+  document.getElementById("printSheetBtn").addEventListener("click", function() {
+    window.print();
+  });
+
+  document.getElementById("printAllFilteredBtn").addEventListener("click", function() {
+    const filtered = getFilteredRecords();
+    if (filtered.length === 0) {
+      alert("لا توجد أوراق لعرضها أو طباعتها!");
+      return;
+    }
+    openParentReportModal(filtered);
+  });
+
+  /* =========================================================================
+     7. رفع ملفات (.dat / .json) أو لصق الكود يدوياً
+     ========================================================================= */
+  document.getElementById("datFileInput").addEventListener("change", function(e) {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    files.forEach(function(file) {
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const content = (evt.target.result || "").trim();
+        if (content) processEncodedOrJsonInput(content);
+      };
+      reader.readAsText(file, "utf-8");
+    });
+    e.target.value = "";
+  });
+
+  document.getElementById("gradeManualBtn").addEventListener("click", function() {
+    const input = document.getElementById("manualCodeInput");
+    const raw = input.value.trim();
+    if (!raw) {
+      alert("يرجى لصق كود الإجابة أو كود الاسترجاع أولاً!");
+      return;
+    }
+    if (processEncodedOrJsonInput(raw)) {
+      input.value = "";
+    }
+  });
+
+  /* =========================================================================
+     8. تشغيل ماسح الكاميرا (html5-qrcode)
+     ========================================================================= */
+  let html5QrScanner = null;
+  let lastScannedCode = "";
+  let lastScanTimestamp = 0;
+
+  const startScanBtn = document.getElementById("startScanBtn");
+  const stopScanBtn = document.getElementById("stopScanBtn");
+  const cameraStatusBadge = document.getElementById("cameraStatusBadge");
+
+  startScanBtn.addEventListener("click", function() {
+    if (typeof Html5Qrcode === "undefined") {
+      alert("مكتبة الكاميرا (html5-qrcode) تتطلب اتصالاً بالإنترنت عند فتح الصفحة لأول مرة، أو يمكنك استخدام رفع ملفات (.dat) مباشرة.");
+      return;
+    }
+
+    html5QrScanner = new Html5Qrcode("qrReader");
+    cameraStatusBadge.textContent = "جاري تشغيل الكاميرا...";
+
+    html5QrScanner.start(
+      { facingMode: "environment" },
+      { fps: 12, qrbox: { width: 260, height: 260 } },
+      function onScanSuccess(decodedText) {
+        const now = Date.now();
+        if (decodedText === lastScannedCode && (now - lastScanTimestamp) < 2500) {
+          return;
+        }
+        lastScannedCode = decodedText;
+        lastScanTimestamp = now;
+        processEncodedOrJsonInput(decodedText);
+      },
+      function onScanFailure() {}
+    ).then(function() {
+      startScanBtn.style.display = "none";
+      stopScanBtn.style.display = "inline-flex";
+      cameraStatusBadge.textContent = "🟢 الكاميرا نشطة (جاهزة للمسح)";
+      cameraStatusBadge.style.color = "#16a34a";
+    }).catch(function() {
+      cameraStatusBadge.textContent = "تعذر فتح الكاميرا";
+      alert("تعذر الوصول إلى الكاميرا. تأكد من منح صلاحية الكاميرا للمتصفح أو استخدم رفع ملف (.dat).");
+    });
+  });
+
+  stopScanBtn.addEventListener("click", function() {
+    if (html5QrScanner) {
+      html5QrScanner.stop().then(function() {
+        html5QrScanner.clear();
+        startScanBtn.style.display = "inline-flex";
+        stopScanBtn.style.display = "none";
+        cameraStatusBadge.textContent = "الكاميرا متوقفة";
+        cameraStatusBadge.style.color = "#64748b";
+      }).catch(function() {});
+    }
+  });
+
+  // تحميل السجلات المحفوظة عند بدء التشغيل
+  loadRecords();
+  renderStudentsTable();
+
+})();
+</script>
+</body>
+</html>
